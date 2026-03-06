@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Plane Crash Simulator</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#0c1220;
+    font-family:Arial;
+    color:white;
+    text-align:center;
+}
+
+h1{
+    margin-top:20px;
+}
+
+#gameContainer{
+    width:900px;
+    margin:auto;
+}
+
+canvas{
+    background:#0c1220;
+    border:1px solid #222;
+}
+
+#multiplier{
+    font-size:40px;
+    margin:15px;
+    color:#00ff88;
+}
+
+button{
+    padding:12px 35px;
+    font-size:18px;
+    border:none;
+    border-radius:6px;
+    background:#ff3b3b;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ff5757;
+}
+
+#history{
+    margin-top:20px;
+}
+
+.round{
+    display:inline-block;
+    background:#1c2235;
+    padding:6px 12px;
+    margin:4px;
+    border-radius:6px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Plane Multiplier Simulator</h1>
+
+<div id="gameContainer">
+
+<div id="multiplier">1.00x</div>
+
+<canvas id="gameCanvas" width="900" height="400"></canvas>
+
+<br><br>
+
+<button onclick="startRound()">START ROUND</button>
+
+<div id="history"></div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("gameCanvas")
+const ctx = canvas.getContext("2d")
+
+let multiplier = 1
+let crashPoint = 2
+let running = false
+
+let planeX = 60
+let planeY = 320
+
+function randomCrash(){
+
+let r = Math.random()
+
+if(r < 0.5) return 1 + Math.random()*1
+if(r < 0.8) return 1 + Math.random()*3
+if(r < 0.95) return 1 + Math.random()*10
+
+return 10 + Math.random()*40
+
+}
+
+function drawPlane(x,y){
+
+ctx.fillStyle = "red"
+
+ctx.beginPath()
+ctx.moveTo(x,y)
+ctx.lineTo(x+40,y-10)
+ctx.lineTo(x+40,y+10)
+ctx.closePath()
+
+ctx.fill()
+
+}
+
+function drawGraph(){
+
+ctx.strokeStyle="#00ff88"
+ctx.lineWidth=3
+ctx.beginPath()
+ctx.moveTo(0,350)
+ctx.lineTo(planeX,planeY)
+ctx.stroke()
+
+}
+
+function update(){
+
+if(!running) return
+
+multiplier += 0.02
+
+planeX += 2
+planeY -= 0.8
+
+document.getElementById("multiplier").innerText =
+multiplier.toFixed(2) + "x"
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+drawGraph()
+drawPlane(planeX,planeY)
+
+if(multiplier >= crashPoint){
+
+running = false
+
+document.getElementById("multiplier").style.color="red"
+
+addHistory(crashPoint.toFixed(2))
+
+return
+
+}
+
+requestAnimationFrame(update)
+
+}
+
+function startRound(){
+
+multiplier = 1
+planeX = 60
+planeY = 320
+
+crashPoint = randomCrash()
+
+document.getElementById("multiplier").style.color="#00ff88"
+
+running = true
+
+update()
+
+}
+
+function addHistory(value){
+
+let div = document.createElement("div")
+div.className="round"
+div.innerText = value + "x"
+
+document.getElementById("history").prepend(div)
+
+}
+
+</script>
+
+</body>
+</html>
